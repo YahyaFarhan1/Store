@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معرض يحيى بن فرحان</title>
+    <style>
+        :root {
+            --primary: #0A4ECB;
+            --secondary: #A8A5E6;
+            --accent: #FFD700;
+            --dark: #2D3436;
+            --light: #F9F9F9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #F8F9FA;
+            color: var(--dark);
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 1rem auto;
+            width: 95%;
+            border-radius: 15px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .art-main-display {
+            width: 100%;
+            height: 500px;
+            background: #f5f5f5;
+            border-radius: 20px 20px 0 0;
+            overflow: hidden;
+            position: relative;
+            cursor: zoom-in;
+        }
+
+        .art-main-display img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 20px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            padding: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .art-item {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .art-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .price-tag {
+            background: var(--accent);
+            color: var(--dark);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            z-index: 2;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .art-info {
+            padding: 1rem;
+            background: rgba(255,255,255,0.95);
+        }
+
+        .art-details {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: rgba(245,245,245,0.8);
+            border-radius: 10px;
+        }
+
+        .art-details p {
+            margin: 0.3rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .cart-wrapper {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 1000;
+        }
+
+        .cart-toggle {
+            background: var(--primary);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(108,92,231,0.4);
+            transition: all 0.3s ease;
+        }
+
+        .cart-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--accent);
+            color: var(--dark);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .cart-panel, .empty-cart-panel {
+            background: white;
+            width: 350px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .cart-panel.active, .empty-cart-panel.active {
+            opacity: 1;
+            visibility: visible;
+            bottom: 90px;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background: #5b4dc0;
+        }
+
+        @media (max-width: 768px) {
+            .gallery {
+                padding: 1rem;
+                grid-template-columns: 1fr;
+            }
+
+            .art-main-display {
+                height: 300px;
+            }
+
+            header {
+                width: 90%;
+                border-radius: 10px;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .price-tag {
+                top: 15px;
+                left: 15px;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            touch-action: none;
+            cursor: zoom-out;
+        }
+
+        .overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            transform-origin: center;
+            transition: transform 0.25s cubic-bezier(0.33, 0.85, 0.56, 1.02);
+            touch-action: none;
+            user-select: none;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>🎨 معرض يحيى بن فرحان</h1>
+        <p>كل لمسة فرشاة تحمل روح قرون من الإبداع</p>
+    </header>
+
+    <div class="gallery">
+        <!-- لوحة 1 -->
+        <div class="art-item">
+            <div class="price-tag">349 ﷼</div>
+            <div class="art-main-display">
+                <img src="1.jpg" alt="لوحة فنية">
+            </div>
+            <div class="art-info">
+                <h3>Lexus 2020</h3>
+                <div class="art-details">
+                    <p>🖌️ التقنية: ألوان خشبية Fabercastel</p>
+                    <p>📏 الأبعاد: 21×29 سم</p>
+                    <p>📝 الوصف: لوحة تجسد جمال التراث العربي بأسلوب معاصر</p>
+                </div>
+                <button onclick="addToCart('عبق الماضي', 1250, 'ألوان زيتية على قماش', '60×80 سم', 'لوحة تجسد جمال التراث العربي بأسلوب معاصر')">إضافة إلى السلة</button>
+            </div>
+        </div>
+
+        <!-- لوحة 2 -->
+        <div class="art-item">
+            <div class="price-tag">2,400 ﷼</div>
+            <div class="art-main-display">
+                <img src="2.jpg" alt="لوحة فنية">
+            </div>
+            <div class="art-info">
+                <h3>أصالة الحاضر</h3>
+                <div class="art-details">
+                    <p>🖌️ التقنية: مزيج ألوان أكريليك وذهب</p>
+                    <p>📏 الأبعاد: 50×70 سم</p>
+                    <p>📝 الوصف: عمل فني يدمج بين الحداثة والهوية العربية</p>
+                </div>
+                <button onclick="addToCart('أصالة الحاضر', 2400, 'مزيج ألوان أكريليك وذهب', '50×70 سم', 'عمل فني يدمج بين الحداثة والهوية العربية')">إضافة إلى السلة</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cart-wrapper">
+        <div class="cart-toggle" onclick="toggleCart(event)">
+            🛒
+            <div class="cart-badge" id="cart-count">0</div>
+        </div>
+        <div class="cart-panel">
+            <div style="padding: 2rem;">
+                <h3>سلة التسوق🎨</h3>
+                <ul id="cart-items" style="margin: 1.5rem 0; list-style: none;"></ul>
+                <hr>
+                <div style="display: flex; justify-content: space-between; margin: 1rem 0;">
+                    <strong>المجموع:</strong>
+                    <span id="total" style="color: #000000; font-weight: bold;">0 ﷼</span>
+                </div>
+                <button onclick="checkout()" style="background: #28a745; color: white;">إتمام الشراء عبر واتساب</button>
+            </div>
+        </div>
+        <div class="empty-cart-panel">
+            <div style="padding: 2rem; text-align: center;">
+                <h3>السلة فارغة!</h3>
+                <button onclick="closeEmptyCart()">حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let isOverlayOpen = false;
+
+        document.querySelectorAll('.art-main-display').forEach(display => {
+            display.addEventListener('click', function(e) {
+                const imgSrc = this.querySelector('img').src;
+                createOverlay(imgSrc);
+            });
+        });
+
+        function createOverlay(src) {
+            isOverlayOpen = true;
+            history.pushState({ overlay: true }, '');
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            
+            const img = new Image();
+            img.src = src;
+            
+            let currentScale = 1;
+            let startX = 0;
+            let startY = 0;
+            let offsetX = 0;
+            let offsetY = 0;
+            let initialDistance = null;
+            let initialScale = 1;
+
+            const updateTransform = () => {
+                const rect = img.getBoundingClientRect();
+                const imgWidth = rect.width;
+                const imgHeight = rect.height;
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                const maxOffsetX = Math.max((imgWidth - viewportWidth) / 2, 0);
+                const maxOffsetY = Math.max((imgHeight - viewportHeight) / 2, 0);
+
+                offsetX = Math.min(Math.max(offsetX, -maxOffsetX), maxOffsetX);
+                offsetY = Math.min(Math.max(offsetY, -maxOffsetY), maxOffsetY);
+
+                img.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${currentScale})`;
+            };
+
+            const closeOverlay = () => {
+                document.body.removeChild(overlay);
+                img.removeEventListener('touchstart', handleTouchStart);
+                img.removeEventListener('touchmove', handleTouchMove);
+                img.removeEventListener('touchend', handleTouchEnd);
+                img.removeEventListener('mousedown', handleMouseDown);
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                img.removeEventListener('wheel', handleWheel);
+                window.removeEventListener('popstate', handlePopState);
+                isOverlayOpen = false;
+            };
+
+            const handlePopState = (e) => {
+                if (isOverlayOpen) {
+                    e.preventDefault();
+                    closeOverlay();
+                    history.replaceState(null, '');
+                }
+            };
+
+            window.addEventListener('popstate', handlePopState);
+
+            const handleTouchStart = (e) => {
+                if (e.touches.length === 2) {
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    initialDistance = Math.hypot(
+                        touch2.clientX - touch1.clientX,
+                        touch2.clientY - touch1.clientY
+                    );
+                    initialScale = currentScale;
+                } else if (e.touches.length === 1) {
+                    startX = e.touches[0].clientX - offsetX;
+                    startY = e.touches[0].clientY - offsetY;
+                }
+            };
+
+            const handleTouchMove = (e) => {
+                e.preventDefault();
+                if (e.touches.length === 2) {
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    const newDistance = Math.hypot(
+                        touch2.clientX - touch1.clientX,
+                        touch2.clientY - touch1.clientY
+                    );
+                    currentScale = Math.min(Math.max(initialScale * (newDistance / initialDistance), 1), 5);
+                    updateTransform();
+                } else if (e.touches.length === 1) {
+                    offsetX = e.touches[0].clientX - startX;
+                    offsetY = e.touches[0].clientY - startY;
+                    updateTransform();
+                }
+            };
+
+            const handleTouchEnd = () => {
+                initialDistance = null;
+            };
+
+            let isDragging = false;
+            const handleMouseDown = (e) => {
+                e.preventDefault();
+                isDragging = true;
+                startX = e.clientX - offsetX;
+                startY = e.clientY - offsetY;
+            };
+
+            const handleMouseMove = (e) => {
+                if (isDragging) {
+                    e.preventDefault();
+                    offsetX = e.clientX - startX;
+                    offsetY = e.clientY - startY;
+                    updateTransform();
+                }
+            };
+
+            const handleMouseUp = () => {
+                isDragging = false;
+            };
+
+            const handleWheel = (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                currentScale = Math.min(Math.max(currentScale * delta, 1), 5);
+                updateTransform();
+            };
+
+            img.addEventListener('touchstart', handleTouchStart);
+            img.addEventListener('touchmove', handleTouchMove);
+            img.addEventListener('touchend', handleTouchEnd);
+            img.addEventListener('mousedown', handleMouseDown);
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            img.addEventListener('wheel', handleWheel);
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    closeOverlay();
+                    history.back();
+                }
+            });
+
+            overlay.appendChild(img);
+            document.body.appendChild(overlay);
+            updateTransform();
+        }
+
+        function updateCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+            document.getElementById('cart-count').textContent = cart.length;
+            const cartItems = document.getElementById('cart-items');
+            cartItems.innerHTML = '';
+            
+            cart.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    ${item.name} - ${item.price} ﷼
+                    <button onclick="removeItem(${index})" 
+                            style="background: #ff4757; padding: 0.3rem 0.8rem; margin-right: 0.5rem;">
+                        حذف
+                    </button>
+                `;
+                cartItems.appendChild(li);
+            });
+            
+            document.getElementById('total').textContent = `${cart.reduce((sum, item) => sum + item.price, 0)} ﷼`;
+        }
+
+        function addToCart(name, price, technique, dimensions, description) {
+            cart.push({ 
+                name, 
+                price,
+                technique,
+                dimensions,
+                description
+            });
+            updateCart();
+            animateCart();
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function toggleCart(event) {
+            event.stopPropagation();
+            const cartPanel = document.querySelector('.cart-panel');
+            const emptyPanel = document.querySelector('.empty-cart-panel');
+            
+            if (cart.length === 0) {
+                emptyPanel.classList.toggle('active');
+                cartPanel.classList.remove('active');
+            } else {
+                cartPanel.classList.toggle('active');
+                emptyPanel.classList.remove('active');
+            }
+        }
+
+        function closeEmptyCart() {
+            document.querySelector('.empty-cart-panel').classList.remove('active');
+        }
+
+        function animateCart() {
+            const toggle = document.querySelector('.cart-toggle');
+            toggle.style.transform = 'scale(1.1)';
+            setTimeout(() => toggle.style.transform = 'scale(1)', 300);
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                document.querySelector('.empty-cart-panel').classList.add('active');
+                return;
+            }
+            
+            const itemsList = cart.map(item => 
+                `*اللوحة:* ${item.name}%0A` +
+                `*التقنية:* ${item.technique}%0A` +
+                `*المقاس:* ${item.dimensions}%0A` +
+                `*السعر:* ${item.price} ﷼%0A` +
+                `*الوصف:* ${item.description}%0A` +
+                `────────────────────`
+            ).join('%0A%0A');
+            
+            const message = 
+                `📦 *طلب جديد من معرض يحيى بن فرحان*%0A` +
+                `────────────────────%0A%0A` +
+                `${itemsList}%0A%0A` +
+                `────────────────────%0A` +
+                `*المجموع الكلي:* ${cart.reduce((sum, item) => sum + item.price, 0)} ﷼`;
+            
+            window.open(`https://wa.me/966536163700?text=${message}`, '_blank');
+            
+            cart = [];
+            updateCart();
+            document.querySelector('.cart-panel').classList.remove('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCart();
+            
+            document.addEventListener('click', function(event) {
+                const cartPanel = document.querySelector('.cart-panel');
+                const emptyPanel = document.querySelector('.empty-cart-panel');
+                if (!event.target.closest('.cart-panel') && 
+                    !event.target.closest('.cart-toggle') && 
+                    !event.target.closest('.empty-cart-panel')) {
+                    cartPanel.classList.remove('active');
+                    emptyPanel.classList.remove('active');
+                }
+            });
+
+            document.addEventListener('scroll', function() {
+                document.querySelector('.cart-panel').classList.remove('active');
+                document.querySelector('.empty-cart-panel').classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
